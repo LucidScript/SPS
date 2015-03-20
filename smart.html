@@ -1,0 +1,151 @@
+<!DOCTYPE html >
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>CO2</title>
+    <link rel="stylesheet" type="text/css" href="style/style.css">
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=visualization"></script>
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <style>
+    body {
+        font-family: 'Ubuntu', serif;
+        font-size: 48px;
+      }
+	</style>
+    <script>
+    //<![CDATA[
+
+    var customIcons = {
+      restaurant: {
+        icon: 'http://labs.google.com/ridefinder/images/mm_20_blue.png'
+      },
+      bar: {
+        icon: 'http://labs.google.com/ridefinder/images/mm_20_red.png'
+      }
+    };
+
+    function load() {
+      var map = new google.maps.Map(document.getElementById("map-canvas"), {
+        center: new google.maps.LatLng(43.8562586, 18.4130763),
+        zoom: 18,
+        mapTypeId: 'roadmap',
+		streetViewControl:false,  
+    	zoomControl:true,
+		zoomControlOptions: {
+    	style:google.maps.ZoomControlStyle.SMALL,
+		position: google.maps.ControlPosition.LEFT_CENTER,
+		},
+		mapTypeControl:false,
+		styles: [{"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"color":"#444444"}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2f2f2"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"all","stylers":[{"saturation":-100},{"lightness":45}]},{"featureType":"road.highway","elementType":"all","stylers":[{"visibility":"simplified"}]},{"featureType":"road.arterial","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#46bcec"},{"visibility":"on"}]}],
+  		panControl: false
+      });
+	  
+      var infoWindow = new google.maps.InfoWindow;
+	  
+	 
+
+      // Change this depending on the name of your PHP file
+      downloadUrl("database.php", function(data) {
+        var xml = data.responseXML;
+        var markers = xml.documentElement.getElementsByTagName("marker");
+        for (var i = 0; i < markers.length; i++) {
+          var address = markers[i].getAttribute("CO2");
+          var type = markers[i].getAttribute("type");
+          var point = new google.maps.LatLng(
+              parseFloat(markers[i].getAttribute("ValueX")),
+              parseFloat(markers[i].getAttribute("ValueY")));
+              //var html = "<b>" + name + "</b> <br/>" + address;
+
+		  var html = "<b>" + name + "</b> <br/>" + address;
+
+var image = {
+    url: 'images/cloud1.png',
+    // This marker is 20 pixels wide by 32 pixels tall.
+    size: new google.maps.Size(20, 32),
+    // The origin for this image is 0,0.
+    //origin: new google.maps.Point(0,0),
+    // The anchor for this image is the base of the flagpole at 0,32.
+    //anchor: new google.maps.Point(0, 32)
+  };
+  
+  var marker = new google.maps.Marker({
+    
+	position: point,
+	animation: google.maps.Animation.DROP,
+    icon: 'images/cloud1.png',
+
+    map: map
+  });
+		  /*icon: icon.icon,*/
+          bindInfoWindow(marker, map, infoWindow, html);
+        }
+        });
+      }
+
+    function bindInfoWindow(marker, map, infoWindow, html) {
+      google.maps.event.addListener(marker, 'click', function() {
+        infoWindow.setContent(html);
+        infoWindow.open(map, marker);
+      });
+    }
+
+    function downloadUrl(url, callback) {
+      var request = window.ActiveXObject ?
+          new ActiveXObject('Microsoft.XMLHTTP') :
+          new XMLHttpRequest;
+
+      request.onreadystatechange = function() {
+        if (request.readyState == 4) {
+          request.onreadystatechange = doNothing;
+          callback(request, request.status);
+        }
+      };
+
+      request.open('GET', url, true);
+      request.send(null);
+    }
+array_filter();
+    function doNothing() {}
+
+    function drawChart(marker) {
+
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Topping');
+        data.addColumn('number', 'Slices');
+        data.addRows([
+          ['Mushrooms', 3],
+          ['Onions', 1],
+          ['Olives', 1],
+          ['Zucchini', 1],
+          ['Pepperoni', 2]
+        ]);
+
+        // Set chart options
+        var options = {'title':'Pizza sold @ '+
+                               marker.getPosition().toString(),
+                       'width':400,
+                       'height':150};
+                       
+        var node        = document.createElement('div'),
+            infoWindow  = new google.maps.InfoWindow(),
+            chart       = new google.visualization.PieChart(node);
+            
+            chart.draw(data, options);
+            infoWindow.setContent(node);
+            infoWindow.open(marker.getMap(),marker);
+      }
+
+
+
+  </script>
+
+  </head>
+
+  <body onload="load()">
+    <div id="topbar"><h2>SMART POLLUTION SYSTEM</h2></div>
+    <div id="map-canvas" </div>
+  </body>
+
+</html>
